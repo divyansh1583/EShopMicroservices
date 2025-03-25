@@ -5,7 +5,7 @@ namespace Catalog.API.Products.CreateProduct
 {
     public record CreateProductCommand(
         string Name, 
-        List<string> Category, 
+        List<string> Categories, 
         string Description, 
         string ImageFile, decimal Price
      ) :ICommand<CreateProductResult>;
@@ -20,7 +20,7 @@ namespace Catalog.API.Products.CreateProduct
             var product = new Product
             {
                 Name = command.Name,
-                Categories = command.Category,
+                Categories = command.Categories,
                 Description = command.Description,
                 Price = command.Price
             };
