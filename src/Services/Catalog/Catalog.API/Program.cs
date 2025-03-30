@@ -2,6 +2,8 @@
 
 
 using BuildingBlocks.Behaviours;
+using BuildingBlocks.Exceptions.Handler;
+using Catalog.API.Data;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,44 +17,24 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 builder.Services.AddMarten(opt =>
-    opt.Connection(builder.Configuration.GetConnectionString("Database")!)
+{
+    opt.Connection(builder.Configuration.GetConnectionString("Database")!);
+}
 ).UseLightweightSessions();
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
+if(builder.Environment.IsDevelopment())
+{
+   builder.Services.InitializeMartenWith<CatalogInitialData>();
+}
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapCarter();
-app.UseExceptionHandler(app =>
-{
-    app.Run(async context =>
-    {
-        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-        if (exception == null)
-        {
-            return;
-        }
-
-        var problemDetails = new ProblemDetails
-        {
-            Title = exception.Message,
-            Status = StatusCodes.Status500InternalServerError,
-            Detail = exception.StackTrace
-        };
-
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogError(exception, "An unhandled exception has occurred");
-
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        context.Response.ContentType = "application/problem+json";
-
-        await context.Response.WriteAsJsonAsync(problemDetails);
-
-
-    }
-        );
-});
+app.UseExceptionHandler(option => { });
 app.Run();

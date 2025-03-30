@@ -1,8 +1,4 @@
-﻿using BuildingBlocks.CQRS;
-using Catalog.API.Models;
-using FluentValidation;
-
-namespace Catalog.API.Products.CreateProduct
+﻿namespace Catalog.API.Products.CreateProduct
 {
     public record CreateProductCommand(
         string Name, 
@@ -34,7 +30,8 @@ namespace Catalog.API.Products.CreateProduct
                 Name = command.Name,
                 Categories = command.Categories,
                 Description = command.Description,
-                Price = command.Price
+                Price = command.Price,
+                ImageFile = command.ImageFile
             };
             
             //save it in the database

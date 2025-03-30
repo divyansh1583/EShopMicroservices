@@ -1,14 +1,14 @@
 ﻿
-namespace Catalog.API.Products.GetProductsByCategory
+namespace Catalog.API.Products.GetProductsByCategories
 {
-    public class GetProductByCategoryEndpoint : ICarterModule
+    public class GetProductByCategoriesEndpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/products/category/{category}",
-                async (string category, ISender sender) =>
+            app.MapGet("/products/Categories/{Categories}",
+                async (string Categories, ISender sender) =>
                 {
-                    var result = await sender.Send(new GetProductByCategoryQuery(category));
+                    var result = await sender.Send(new GetProductByCategoriesQuery(Categories));
                     return Results.Ok(result);
                 });
         }
